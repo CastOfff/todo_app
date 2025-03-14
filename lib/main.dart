@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/task_bloc.dart';
+import 'cubit/todo_cubit.dart';
 import 'data/model/task.dart';
 import 'data/repository/task_service.dart';
 
@@ -14,8 +15,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TaskBloc>(
-      create: (context) => TaskBloc(),
+    return BlocProvider<TodoCubit>(
+      create: (context) => TodoCubit(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -38,11 +39,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final taskService = TaskService();
 
-  @override
-  void initState() {
-    context.read<TaskBloc>().add(TaskRefreshed());
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -70,8 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         actions: [
                           TextButton(
                               onPressed: () async {
+                                context.read<TodoCubit>().createTask(Task(name: taskName));
                                 Navigator.pop(context);
-                                context.read<TaskBloc>().add(TaskCreated(Task(name: taskName)));
+                                // context.read<TaskBloc>().add(TaskCreated(Task(name: taskName)));
                               },
                               child: Text('Save')),
                           TextButton(
@@ -88,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
             IconButton(
                 onPressed: () async {
-                  context.read<TaskBloc>().add(TaskRefreshed());
+                  context.read<TodoCubit>().refreshTodo();
                 },
                 icon: Icon(Icons.refresh))
           ],
@@ -131,7 +128,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChanged: (value) async {
                   tasks[index].isCompleted =
                       !(tasks[index].isCompleted ?? false);
-                  context.read<TaskBloc>().add(TaskUpdated(tasks[index]));
                 setState(() {
 
                 });
